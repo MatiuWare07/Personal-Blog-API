@@ -1,0 +1,41 @@
+@baseUrl = http://localhost:3000
+
+### 🩺 HEALTH CHECK
+GET {{baseUrl}}/health
+
+### 📝 LISTAR POSTS
+GET {{baseUrl}}/posts
+
+### ➕ CREAR POST
+POST {{baseUrl}}/posts
+Content-Type: application/json
+
+{
+  "title": "Mi primer post de prueba",
+  "content": "Este es el contenido de mi post ficticio creado desde REST Client"
+}
+
+### 👤 REGISTRAR USUARIO
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "usuario.test@ficticio.com",
+  "password": "Password123",
+  "name": "Usuario Test"
+}
+
+### 🔐 LOGIN
+POST {{baseUrl}}/auth/login  
+Content-Type: application/json
+
+{
+  "email": "usuario.test@ficticio.com",
+  "password": "Password123"
+}
+
+### 📋 LISTAR USUARIOS (solo para prueba - en desarrollo)
+GET {{baseUrl}}/users
+
+### 🗑️ ELIMINAR TODOS LOS POSTS (solo para pruebas)
+POST {{baseUrl}}/testing/reset
