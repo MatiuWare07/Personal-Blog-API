@@ -12,6 +12,12 @@ const PORT = 3000
 app.use(cors())
 app.use(express.json())
 
+// Configurar CORS (al inicio del middleware)
+app.use(cors({
+  origin: ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:5500', 'http://127.0.0.1:5500'],
+  credentials: true
+}));
+
 // Health check
 app.get('/health', async (req, res) => {
   try {
