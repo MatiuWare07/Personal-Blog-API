@@ -410,6 +410,46 @@ function insertImage() {
     }
 }
 
+// RESETEO COMPLETO DEL SISTEMA
+async function resetCompleteSystem() {
+    if (!confirm('⚠️ ¿ESTÁS ABSOLUTAMENTE SEGURO?\n\nEsto eliminará:\n• TODOS los usuarios\n• TODOS los posts\n• TODOS los comentarios\n• Tus datos locales\n\nEsta acción NO se puede deshacer.')) {
+        return;
+    }
+    
+    try {
+        showAuthStatus('⏳ Limpiando sistema...', 'info');
+        
+        // 1. Limpiar datos locales primero
+        localStorage.clear();
+        console.log('🧹 Datos locales limpiados');
+        
+        // 2. Resetear base de datos en la API (ruta pública, sin token)
+        const response = await fetch('http://localhost:3000/testing/reset', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            showAuthStatus('✅ ' + data.message, 'success');
+            // Forzar mostrar sección de autenticación
+            showAuthSection();
+            
+            setTimeout(() => {
+                location.reload();
+            }, 2000);
+        } else {
+            showAuthStatus('❌ Error: ' + data.message, 'error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showAuthStatus('❌ Error de conexión con el servidor', 'error');
+    }
+}
+
 // UTILIDADES
 async function checkHealth() {
     try {
@@ -441,7 +481,7 @@ function showAuthStatus(message, type) {
             if (authStatus.innerHTML.includes(message)) {
                 authStatus.innerHTML = '';
             }
-        }, 3000);
+        }, 5000);
     }
 }
 

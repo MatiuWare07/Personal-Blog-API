@@ -92,6 +92,31 @@ app.get('/posts/:id', async (req, res) => {
 // Rutas de comentarios (públicas para lectura)
 app.get('/posts/:postId/comments', commentController.getPostComments as express.RequestHandler)
 
+// 🔧 RUTA PÚBLICA PARA RESETEAR DATOS (SIN AUTENTICACIÓN)
+app.post('/testing/reset', async (req, res) => {
+  try {
+    console.log('🗑️ Iniciando reset completo de la base de datos...')
+    
+    // Eliminar en orden correcto por las relaciones
+    await prisma.comment.deleteMany()
+    await prisma.post.deleteMany()
+    await prisma.user.deleteMany()
+    
+    console.log('✅ Base de datos reseteda completamente')
+    
+    res.json({
+      success: true,
+      message: '✅ Sistema reiniciado completamente. Todos los usuarios, posts y comentarios han sido eliminados.'
+    })
+  } catch (error) {
+    console.error('❌ Error reseteando datos:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Error reseteando datos'
+    })
+  }
+})
+
 // 🔐 A PARTIR DE AQUÍ - RUTAS PROTEGIDAS
 app.use(authMiddleware.authenticateToken as express.RequestHandler)
 
@@ -261,26 +286,6 @@ app.get('/users', async (req, res) => {
   }
 })
 
-// Endpoint temporal para resetear datos (SOLO desarrollo)
-app.post('/testing/reset', async (req, res) => {
-  try {
-    // Eliminar en orden correcto por las relaciones
-    await prisma.comment.deleteMany()
-    await prisma.post.deleteMany()
-    await prisma.user.deleteMany()
-    
-    res.json({
-      success: true,
-      message: 'Todos los datos de prueba fueron reseteados'
-    })
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Error reseteando datos'
-    })
-  }
-})
-
 // Iniciar servidor
 app.listen(PORT, () => {
   console.log('🚀 SERVIDOR COMPLETO CON AUTENTICACIÓN')
@@ -295,6 +300,7 @@ app.listen(PORT, () => {
   console.log('  GET  /posts                  - Listar posts')
   console.log('  GET  /posts/:id             - Obtener post')
   console.log('  GET  /posts/:postId/comments - Listar comentarios')
+  console.log('  POST /testing/reset          - Resetear base de datos (desarrollo)')
   console.log('')
   console.log('🔐 ENDPOINTS PROTEGIDOS (requieren token JWT):')
   console.log('  GET  /auth/profile           - Perfil de usuario')
