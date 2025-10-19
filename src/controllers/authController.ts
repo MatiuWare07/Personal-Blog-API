@@ -2,55 +2,20 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import prisma from '../db';
-import { validateEmail, validatePassword } from '../utils/validators';
+import { AuthRequest } from '../middleware/auth';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'clave-secreta-local-ficticia';
 
-// Interface para el usuario en el token
-interface TokenUser {
-  userId: number;
-  email: string;
-}
-
-// Extender el tipo Request de Express
-interface AuthRequest extends Request {
-  user?: TokenUser;
-}
-
-export const register = async (req: Request, res: Response) => {
+export const register = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password, name } = req.body;
 
-    // Validaciones básicas
     if (!email || !password || !name) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: 'Email, password y name son requeridos'
       });
-    }
-
-    // Validaciones avanzadas
-    if (!validateEmail(email)) {
-      return res.status(400).json({
-        success: false,
-        message: 'El formato del email es inválido'
-      });
-    }
-
-    const passwordValidation = validatePassword(password);
-    if (!passwordValidation.isValid) {
-      return res.status(400).json({
-        success: false,
-        message: 'La contraseña no cumple los requisitos',
-        errors: passwordValidation.errors
-      });
-    }
-
-    if (name.trim().length < 2) {
-      return res.status(400).json({
-        success: false,
-        message: 'El nombre debe tener al menos 2 caracteres'
-      });
+      return;
     }
 
     // Verificar si el usuario ya existe
@@ -59,10 +24,11 @@ export const register = async (req: Request, res: Response) => {
     });
 
     if (existingUser) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: 'El usuario ya existe'
       });
+      return;
     }
 
     // Hash de la contraseña
@@ -104,15 +70,16 @@ export const register = async (req: Request, res: Response) => {
   }
 };
 
-export const login = async (req: Request, res: Response) => {
+export const login = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: 'Email y password son requeridos'
       });
+      return;
     }
 
     // Buscar usuario
@@ -121,20 +88,22 @@ export const login = async (req: Request, res: Response) => {
     });
 
     if (!user) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         message: 'Credenciales inválidas'
       });
+      return;
     }
 
     // Verificar contraseña
     const isValidPassword = await bcrypt.compare(password, user.password);
 
     if (!isValidPassword) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         message: 'Credenciales inválidas'
       });
+      return;
     }
 
     // Generar token JWT
@@ -164,13 +133,42 @@ export const login = async (req: Request, res: Response) => {
   }
 };
 
-export const getProfile = async (req: Request, res: Response) => {
+export const getProfile = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    // Por ahora devolvemos un mensaje - implementaremos la autenticación después
+    const userId = req.user?.userId;
+
+    if (!userId) {
+      res.status(401).json({
+        success: false,
+        message: 'Usuario no autenticado'
+      });
+      return;
+    }
+
+    // Buscar el usuario en la base de datos
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        createdAt: true,
+        updatedAt: true
+      }
+    });
+
+    if (!user) {
+      res.status(404).json({
+        success: false,
+        message: 'Usuario no encontrado'
+      });
+      return;
+    }
+
     res.json({
       success: true,
-      message: 'Endpoint de perfil - la autenticación se implementará después',
-      note: 'Por ahora puedes usar register y login para crear usuarios'
+      data: user,
+      message: 'Perfil obtenido exitosamente'
     });
   } catch (error) {
     console.error('Error obteniendo perfil:', error);
@@ -180,5 +178,3 @@ export const getProfile = async (req: Request, res: Response) => {
     });
   }
 };
-
-// TOKEN: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImVtYWlsIjoibWl1c3VhcmlvQGZpY3RpY2lvLmNvbSIsImlhdCI6MTc2MDM3Mzc4NSwiZXhwIjoxNzYwNDYwMTg1fQ.idZGFK1Z4cTx91lcr0t9Tz95L2u5DB1UWI_B9qy6oIo

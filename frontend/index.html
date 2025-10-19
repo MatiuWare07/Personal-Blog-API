@@ -10,7 +10,7 @@
     <div class="container">
         <header>
             <h1>📝 Mi Blog Personal</h1>
-            <p>Frontend para consumir la API del blog</p>
+            <p>Frontend para consumir la API del blog - 100% Local</p>
         </header>
 
         <!-- Sección de Autenticación -->
@@ -20,10 +20,10 @@
                 <div class="form-container">
                     <h3>Registrarse</h3>
                     <form id="register-form">
-                        <input type="text" id="register-name" placeholder="Nombre" required>
+                        <input type="text" id="register-name" placeholder="Nombre completo" required>
                         <input type="email" id="register-email" placeholder="Email" required>
                         <input type="password" id="register-password" placeholder="Contraseña" required>
-                        <button type="submit">Registrarse</button>
+                        <button type="submit">📝 Registrarse</button>
                     </form>
                 </div>
                 
@@ -32,7 +32,7 @@
                     <form id="login-form">
                         <input type="email" id="login-email" placeholder="Email" required>
                         <input type="password" id="login-password" placeholder="Contraseña" required>
-                        <button type="submit">Iniciar Sesión</button>
+                        <button type="submit">🔑 Iniciar Sesión</button>
                     </form>
                 </div>
             </div>
@@ -41,30 +41,134 @@
 
         <!-- Sección de Posts (visible solo cuando estás autenticado) -->
         <section id="posts-section" class="section" style="display: none;">
-            <h2>📄 Posts</h2>
-            
-            <!-- Formulario para crear posts -->
-            <div class="form-container">
-                <h3>Crear Nuevo Post</h3>
-                <form id="create-post-form">
-                    <input type="text" id="post-title" placeholder="Título del post" required>
-                    <textarea id="post-content" placeholder="Contenido del post" required></textarea>
-                    <button type="submit">Crear Post</button>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="margin: 0;">📄 Mis Posts</h2>
+                <button onclick="logout()" style="background: #6c757d;">🚪 Cerrar Sesión</button>
+            </div>
+
+            <!-- Formulario de Edición (oculto inicialmente) -->
+            <div id="edit-post-section" class="form-container" style="display: none; border: 2px solid #3498db;">
+                <h3>✏️ Editando Post</h3>
+                <form id="edit-post-form">
+                    <input type="hidden" id="edit-post-id">
+                    <input type="text" id="edit-post-title" placeholder="Título del post" required>
+                    
+                    <!-- Editor enriquecido -->
+                    <div class="editor-toolbar">
+                        <button type="button" onclick="formatText('bold')" title="Negrita"><strong>B</strong></button>
+                        <button type="button" onclick="formatText('italic')" title="Cursiva"><em>I</em></button>
+                        <button type="button" onclick="formatText('underline')" title="Subrayado"><u>U</u></button>
+                        <button type="button" onclick="formatText('insertUnorderedList')" title="Lista con viñetas">• Lista</button>
+                        <button type="button" onclick="formatText('insertOrderedList')" title="Lista numerada">1. Lista</button>
+                        <select onchange="changeFontSize(this.value)" title="Tamaño de fuente">
+                            <option value="">Tamaño</option>
+                            <option value="1">Pequeño</option>
+                            <option value="3">Normal</option>
+                            <option value="5">Grande</option>
+                            <option value="7">Muy Grande</option>
+                        </select>
+                        <select onchange="changeFontFamily(this.value)" title="Familia de fuente">
+                            <option value="">Fuente</option>
+                            <option value="Arial, sans-serif">Arial</option>
+                            <option value="Georgia, serif">Georgia</option>
+                            <option value="'Times New Roman', serif">Times New Roman</option>
+                            <option value="'Courier New', monospace">Courier New</option>
+                        </select>
+                        <button type="button" onclick="insertImage()" title="Insertar imagen">🖼️ Imagen</button>
+                        <button type="button" onclick="formatText('removeFormat')" title="Limpiar formato">🧹 Limpiar</button>
+                    </div>
+                    
+                    <div id="edit-post-content" contenteditable="true" class="rich-editor" placeholder="Escribe el contenido de tu post aquí..."></div>
+                    
+                    <div style="margin-top: 15px; display: flex; gap: 10px;">
+                        <button type="submit">✅ Guardar Cambios</button>
+                        <button type="button" onclick="cancelEdit()" style="background: #6c757d;">❌ Cancelar Edición</button>
+                    </div>
                 </form>
             </div>
 
-            <!-- Lista de posts -->
-            <div id="posts-list" class="posts-list"></div>
+            <!-- Formulario para Crear Nuevo Post -->
+            <div id="create-post-container" class="form-container">
+                <h3>📝 Crear Nuevo Post</h3>
+                <form id="create-post-form">
+                    <input type="text" id="post-title" placeholder="Título del post" required>
+                    <textarea id="post-content" placeholder="Contenido del post (puedes usar formato básico)" required></textarea>
+                    <button type="submit">📤 Publicar Post</button>
+                </form>
+            </div>
+
+            <!-- Lista de Posts -->
+            <div class="posts-container">
+                <h3>📚 Todos los Posts</h3>
+                <div id="posts-list" class="posts-list">
+                    <p>Cargando posts...</p>
+                </div>
+            </div>
         </section>
 
-        <!-- Estado de la API -->
+        <!-- Estado del Sistema -->
         <section class="section">
-            <h2>🩺 Estado del Servidor</h2>
-            <button onclick="checkHealth()">Verificar Estado</button>
-            <div id="health-status" class="status"></div>
+            <h2>🩺 Estado del Sistema</h2>
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <button onclick="checkHealth()">🔄 Verificar Estado</button>
+                <button onclick="resetDatabase()" style="background: #dc3545;">🗑️ Resetear Base de Datos</button>
+                <button onclick="clearAllData()" style="background: #6c757d;">🧹 Limpiar Datos Locales</button>
+            </div>
+            <div id="health-status" class="status" style="margin-top: 15px;"></div>
+        </section>
+
+        <!-- Información del Usuario -->
+        <section id="user-info-section" class="section" style="display: none;">
+            <h2>👤 Información del Usuario</h2>
+            <div id="user-info" class="status info">
+                <p><strong>ID:</strong> <span id="user-id">-</span></p>
+                <p><strong>Nombre:</strong> <span id="user-name">-</span></p>
+                <p><strong>Email:</strong> <span id="user-email">-</span></p>
+                <p><strong>Registrado:</strong> <span id="user-created">-</span></p>
+            </div>
         </section>
     </div>
 
     <script src="app.js"></script>
+    <script>
+        // Función para resetear la base de datos
+        async function resetDatabase() {
+            if (!confirm('⚠️ ¿ESTÁS SEGURO? Esto eliminará TODOS los usuarios, posts y comentarios. Esta acción NO se puede deshacer.')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('http://localhost:3000/testing/reset', {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    alert('✅ ' + data.message);
+                    // Si estás logueado, hacer logout y recargar
+                    if (localStorage.getItem('blogToken')) {
+                        logout();
+                    }
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    alert('❌ Error: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ Error de conexión');
+            }
+        }
+
+        // Función para limpiar datos locales
+        function clearAllData() {
+            if (confirm('¿Estás seguro de que quieres limpiar todos los datos locales? Esto incluye tu token de autenticación.')) {
+                localStorage.clear();
+                alert('🧹 Todos los datos locales han sido limpiados');
+                location.reload();
+            }
+        }
+    </script>
 </body>
 </html>

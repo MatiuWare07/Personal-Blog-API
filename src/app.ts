@@ -1,22 +1,21 @@
 import express from 'express'
 import cors from 'cors'
 import prisma from './db'
-import { register, login, getProfile } from './controllers/authController'
-import { getPostComments, createComment, deleteComment } from './controllers/commentController'
-import { authenticateToken } from './middleware/auth'
+
+// Importación alternativa - importa todo el módulo
+import * as authController from './controllers/authController'
+import * as commentController from './controllers/commentController'
+import * as authMiddleware from './middleware/auth'
 
 const app = express()
 const PORT = 3000
 
 // Middleware
-app.use(cors())
-app.use(express.json())
-
-// Configurar CORS (al inicio del middleware)
 app.use(cors({
   origin: ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:5500', 'http://127.0.0.1:5500'],
   credentials: true
-}));
+}))
+app.use(express.json())
 
 // Health check
 app.get('/health', async (req, res) => {
@@ -39,8 +38,8 @@ app.get('/health', async (req, res) => {
 
 // 🔓 RUTAS PÚBLICAS
 // Rutas de autenticación
-app.post('/auth/register', register)
-app.post('/auth/login', login)
+app.post('/auth/register', authController.register as express.RequestHandler)
+app.post('/auth/login', authController.login as express.RequestHandler)
 
 // Rutas públicas de posts (lectura)
 app.get('/posts', async (req, res) => {
@@ -91,13 +90,13 @@ app.get('/posts/:id', async (req, res) => {
 })
 
 // Rutas de comentarios (públicas para lectura)
-app.get('/posts/:postId/comments', getPostComments)
+app.get('/posts/:postId/comments', commentController.getPostComments as express.RequestHandler)
 
 // 🔐 A PARTIR DE AQUÍ - RUTAS PROTEGIDAS
-app.use(authenticateToken)
+app.use(authMiddleware.authenticateToken as express.RequestHandler)
 
 // Ruta de perfil (protegida)
-app.get('/auth/profile', getProfile)
+app.get('/auth/profile', authController.getProfile as express.RequestHandler)
 
 // POST /posts - Crear nuevo post (protegido)
 app.post('/posts', async (req: any, res) => {
@@ -231,90 +230,10 @@ app.delete('/posts/:id', async (req: any, res) => {
 })
 
 // POST /posts/:postId/comments - Crear comentario (protegido)
-app.post('/posts/:postId/comments', async (req: any, res) => {
-  try {
-    const postId = parseInt(req.params.postId)
-    const { content } = req.body
-    const userId = req.user.userId
-
-    // Validar que el post existe
-    const post = await prisma.post.findUnique({
-      where: { id: postId }
-    })
-
-    if (!post) {
-      return res.status(404).json({
-        success: false,
-        message: 'Post no encontrado'
-      })
-    }
-
-    // Obtener información del usuario para el autor
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { name: true }
-    })
-
-    const comment = await prisma.comment.create({
-      data: {
-        content: content.trim(),
-        author: user?.name || 'Usuario Ficticio',
-        postId: postId,
-        userId: userId
-      }
-    })
-
-    res.status(201).json({
-      success: true,
-      data: comment,
-      message: 'Comentario creado exitosamente'
-    })
-  } catch (error) {
-    console.error('Error creando comentario:', error)
-    res.status(500).json({
-      success: false,
-      message: 'Error creando comentario'
-    })
-  }
-})
+app.post('/posts/:postId/comments', commentController.createComment as express.RequestHandler)
 
 // DELETE /comments/:commentId - Eliminar comentario (protegido)
-app.delete('/comments/:commentId', async (req: any, res) => {
-  try {
-    const commentId = parseInt(req.params.commentId)
-    const userId = req.user.userId
-
-    // Verificar que el comentario existe y pertenece al usuario
-    const existingComment = await prisma.comment.findFirst({
-      where: { 
-        id: commentId,
-        userId: userId 
-      }
-    })
-
-    if (!existingComment) {
-      return res.status(404).json({
-        success: false,
-        message: 'Comentario no encontrado o no autorizado'
-      })
-    }
-
-    await prisma.comment.delete({
-      where: { id: commentId }
-    })
-
-    res.json({
-      success: true,
-      message: 'Comentario eliminado exitosamente'
-    })
-  } catch (error) {
-    console.error('Error eliminando comentario:', error)
-    res.status(500).json({
-      success: false,
-      message: 'Error eliminando comentario'
-    })
-  }
-})
+app.delete('/comments/:commentId', commentController.deleteComment as express.RequestHandler)
 
 // 🔧 RUTAS DE DESARROLLO (públicas por ahora)
 // Endpoint temporal para ver usuarios (SOLO desarrollo)
