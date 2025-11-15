@@ -83,7 +83,7 @@ Frontend: http://localhost:5500 (or your local server)
 Backend API: http://localhost:3000
 Health Check: http://localhost:3000/health
 
-## 🎮 Usage
+# 🎮 Usage
 First Time Setup
 Register a new user account
 
@@ -93,7 +93,7 @@ Create your first blog post using the rich text editor
 
 Explore the Frutiger Aero interface
 
-Key Features in Action
+# Key Features in Action
 ✏️ Rich Text Editing - Use the toolbar for formatting
 
 🖼️ Image Embedding - Insert images via URL
@@ -102,14 +102,14 @@ Key Features in Action
 
 🎨 Visual Feedback - Smooth animations and transitions
 
-Administration
+# Administration
 System Reset - Clear all data (development only)
 
 Health Monitoring - Check API status anytime
 
 User Management - Secure profile system
 
-🛠 API Endpoints
+# 🛠 API Endpoints
 Public Routes
 Method	Endpoint	Description
 POST	/auth/register	User registration
@@ -125,14 +125,14 @@ PUT	/posts/:id	Update post
 DELETE	/posts/:id	Delete post
 POST	/posts/:id/comments	Add comment
 DELETE	/comments/:id	Delete comment
-🎨 Design System
+# 🎨 Design System
 Frutiger Aero Palette
 css
 Primary: #00BFFF, #1E90FF, #87CEEB
 Secondary: #32CD32, #98FB98, #B0E0E6
 Gradients: Blue → Green transitions
 Effects: Glass morphism, soft shadows, rounded corners
-UI Components
+# UI Components
 Glass Cards - Semi-transparent containers
 
 Animated Buttons - Gradient backgrounds with hover effects
@@ -141,7 +141,7 @@ Smooth Transitions - CSS animations throughout
 
 Responsive Grid - Adaptive layout system
 
-🔧 Development
+# 🔧 Development
 Tech Stack
 Frontend: Vanilla HTML/CSS/JavaScript
 
@@ -153,7 +153,7 @@ Authentication: JWT + bcrypt
 
 Styling: Custom CSS with Frutiger Aero design
 
-Scripts
+# Scripts
 bash
 npm run dev          # Start development server
 npm run build        # Build for production
@@ -166,7 +166,7 @@ env
 DATABASE_URL="file:./dev.db"
 JWT_SECRET="your-secret-key"
 NODE_ENV="development"
-🚀 Deployment
+# 🚀 Deployment
 Local Production
 bash
 npm run build
@@ -178,7 +178,7 @@ Optimized backend bundle
 
 Production database
 
-🤝 Contributing
+# 🤝 Contributing
 Fork the repository
 
 Create your feature branch (git checkout -b feature/amazing-feature)
@@ -189,10 +189,10 @@ Push to the branch (git push origin feature/amazing-feature)
 
 Open a Pull Request
 
-📝 License
+# 📝 License
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-🎯 Roadmap
+# 🎯 Roadmap
 Image Upload - Direct file uploads
 
 Post Categories - Tagging and organization
@@ -205,7 +205,7 @@ Progressive Web App - Offline functionality
 
 Dark Mode - Alternative theme
 
-📞 Support
+# 📞 Support
 If you have any questions or need help with setup:
 
 Check the Issues page
