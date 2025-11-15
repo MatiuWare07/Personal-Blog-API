@@ -83,7 +83,7 @@ Frontend: http://localhost:5500 (or your local server)
 Backend API: http://localhost:3000
 Health Check: http://localhost:3000/health
 
-🎮 Usage
+## 🎮 Usage
 First Time Setup
 Register a new user account
 
